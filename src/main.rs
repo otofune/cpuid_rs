@@ -82,31 +82,58 @@ unsafe fn cpuid_vendor_id() -> Vendor {
 
 unsafe fn cpuid_signature() -> u32 {
     let signature: u32;
-    let extra: u32;
     asm!(
         "cpuid",
         // EAX 1 selects the procesor information
-        inout("eax") 1 as i32 => signature,
+        inout("eax") 1 as u32 => signature,
         out("edx") _, // flags
         out("ecx") _,
-        out("ebx") extra, // extra
+        out("ebx") _, // extra
     );
-    println!("extra(ebx) = {:#b}", extra);
     signature
+}
+
+fn brand_string(src: &Vec<BrandPart>) -> String {
+    let mut s = String::new();
+    for part in src {
+        s = s + &part.text;
+    }
+    s
 }
 
 fn main() {
     unsafe {
         let vendor = cpuid_vendor_id();
-        println!(
-            "vendor = {} (ebx = {:#b}, edx = {:#b}, ecx = {:#b})",
-            vendor.text, vendor.ebx, vendor.edx, vendor.ecx
-        );
         let signature = cpuid_signature();
-        println!("processor signature = eax = {:#b}", signature);
         let brand = cpuid_brand();
+
+        eprintln!("# cpuid to vmx");
+        eprintln!("# vendor = {}", vendor.text);
+        // TODO: DRY
+        println!(r#"cpuid.0.ebx = "{:0b}""#, vendor.ebx);
+        println!(r#"cpuid.0.edx = "{:0b}""#, vendor.edx);
+        println!(r#"cpuid.0.ecx = "{:0b}""#, vendor.ecx);
+
+        eprintln!("# signature");
+        println!(r#"cpuid.1.eax = "{:0b}""#, signature);
+        eprintln!("# brandstring = {}", brand_string(&brand));
         for brand_part in &brand {
-            println!("brand_part(eax_in = {:#x}, eax = {:#b}, ebx: {:#b}, ecx: {:#b}, edx: {:#b}) = '{}'", brand_part.eax_in, brand_part.eax, brand_part.ebx, brand_part.ecx, brand_part.edx, brand_part.text);
+            println!(
+                r#"cpuid.{:0x}f.eax = "{:0b}""#,
+                brand_part.eax_in, brand_part.eax
+            );
+            println!(
+                r#"cpuid.{:0x}f.ebx = "{:0b}""#,
+                brand_part.eax_in, brand_part.ebx
+            );
+            println!(
+                r#"cpuid.{:0x}f.ecx = "{:0b}""#,
+                brand_part.eax_in, brand_part.ecx
+            );
+            println!(
+                r#"cpuid.{:0x}f.edx = "{:0b}""#,
+                brand_part.eax_in, brand_part.edx
+            );
         }
     }
 }
