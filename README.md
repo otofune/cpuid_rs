@@ -3,7 +3,12 @@ cpuid_rs
 
 これなに
 ---
-- 実行したら x86 の CPUID 命令を叩いて vendor, processor signature を出力するだけのプログラム
+- 実行したら x86 の CPUID 命令を叩いて VMware の vmx ファイルに適用できる設定列を生成します
+    + `eax=0` のすべて
+    + `eax=1` の processor signature
+        * 注意: processor signature から機能の差異を再現するようで、それを切らないと Intel <-> AMD 間でこの値を変えることはできない
+        * `featureCompat.enable = "FALSE"` で切れます
+    + `eax=80000002f ~ 80000004f` の brand string
 - New asm! を使うので nightly じゃないとビルドできません
 - asm! 書いてみたかっただけです
 

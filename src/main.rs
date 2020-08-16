@@ -131,13 +131,15 @@ fn main() {
                 vec![(31 - 31)..(31 - 27), (31 - 15)..(31 - 13)]
             )
         );
-        eprintln!(r#"# cpuid.brandstring = "{}""#, brand_string(&brand));
+        eprintln!("# brandstring");
+        println!(r#"cpuid.brandstring = "{}""#, brand_string(&brand));
         for brand_part in &brand {
-            let left = format!(r#"cpuid.{}"#, brand_part.eax_in);
-            println!(r#"{}.eax = "{:032b}""#, left, brand_part.eax);
-            println!(r#"{}.ebx = "{:032b}""#, left, brand_part.ebx);
-            println!(r#"{}.ecx = "{:032b}""#, left, brand_part.ecx);
-            println!(r#"{}.edx = "{:032b}""#, left, brand_part.edx);
+            // Commented out because VMware may not accept manipulating brand string with cpuid.<in> syntax
+            let left = format!(r#"cpuid.{:x}f"#, brand_part.eax_in);
+            eprintln!(r#"# {}.eax = "{:032b}""#, left, brand_part.eax);
+            eprintln!(r#"# {}.ebx = "{:032b}""#, left, brand_part.ebx);
+            eprintln!(r#"# {}.ecx = "{:032b}""#, left, brand_part.ecx);
+            eprintln!(r#"# {}.edx = "{:032b}""#, left, brand_part.edx);
         }
     }
 }
