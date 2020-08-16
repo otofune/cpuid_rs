@@ -131,7 +131,7 @@ fn main() {
                 vec![(31 - 31)..(31 - 27), (31 - 15)..(31 - 13)]
             )
         );
-        eprintln!("# brandstring = {}", brand_string(&brand));
+        eprintln!(r#"# cpuid.brandstring = "{}""#, brand_string(&brand));
         for brand_part in &brand {
             let left = format!(r#"cpuid.{}"#, brand_part.eax_in);
             println!(r#"{}.eax = "{:032b}""#, left, brand_part.eax);
