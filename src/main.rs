@@ -118,9 +118,9 @@ fn main() {
         eprintln!("# cpuid to vmx");
         eprintln!("# vendor = {}", vendor.text);
         // TODO: DRY
-        println!(r#"cpuid.0.ebx = "{:0b}""#, vendor.ebx);
-        println!(r#"cpuid.0.edx = "{:0b}""#, vendor.edx);
-        println!(r#"cpuid.0.ecx = "{:0b}""#, vendor.ecx);
+        println!(r#"cpuid.0.ebx = "{:032b}""#, vendor.ebx);
+        println!(r#"cpuid.0.edx = "{:032b}""#, vendor.edx);
+        println!(r#"cpuid.0.ecx = "{:032b}""#, vendor.ecx);
 
         eprintln!("# signature");
         println!(
@@ -134,10 +134,10 @@ fn main() {
         eprintln!("# brandstring = {}", brand_string(&brand));
         for brand_part in &brand {
             let left = format!(r#"cpuid.{}"#, brand_part.eax_in);
-            println!(r#"{}.eax = "{:0b}""#, left, brand_part.eax);
-            println!(r#"{}.ebx = "{:0b}""#, left, brand_part.ebx);
-            println!(r#"{}.ecx = "{:0b}""#, left, brand_part.ecx);
-            println!(r#"{}.edx = "{:0b}""#, left, brand_part.edx);
+            println!(r#"{}.eax = "{:032b}""#, left, brand_part.eax);
+            println!(r#"{}.ebx = "{:032b}""#, left, brand_part.ebx);
+            println!(r#"{}.ecx = "{:032b}""#, left, brand_part.ecx);
+            println!(r#"{}.edx = "{:032b}""#, left, brand_part.edx);
         }
     }
 }
