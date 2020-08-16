@@ -85,7 +85,7 @@ unsafe fn cpuid_signature() -> u32 {
     asm!(
         "cpuid",
         // EAX 1 selects the procesor information
-        inout("eax") 1 as u32 => signature,
+        inlateout("eax") 1 as u32 => signature,
         out("edx") _, // flags
         out("ecx") _,
         out("ebx") _, // extra
@@ -97,6 +97,14 @@ fn brand_string(src: &Vec<BrandPart>) -> String {
     let mut s = String::new();
     for part in src {
         s = s + &part.text;
+    }
+    s
+}
+
+fn mask(mut s: String, m: &str, r: Vec<std::ops::Range<usize>>) -> String {
+    for range in r {
+        let (size, _) = range.size_hint();
+        s.replace_range(range, &m.repeat(size));
     }
     s
 }
@@ -115,25 +123,21 @@ fn main() {
         println!(r#"cpuid.0.ecx = "{:0b}""#, vendor.ecx);
 
         eprintln!("# signature");
-        println!(r#"cpuid.1.eax = "{:0b}""#, signature);
+        println!(
+            r#"cpuid.1.eax = "{}""#,
+            mask(
+                format!("{:032b}", signature),
+                "-",
+                vec![(31 - 31)..(31 - 27), (31 - 15)..(31 - 13)]
+            )
+        );
         eprintln!("# brandstring = {}", brand_string(&brand));
         for brand_part in &brand {
-            println!(
-                r#"cpuid.{:0x}f.eax = "{:0b}""#,
-                brand_part.eax_in, brand_part.eax
-            );
-            println!(
-                r#"cpuid.{:0x}f.ebx = "{:0b}""#,
-                brand_part.eax_in, brand_part.ebx
-            );
-            println!(
-                r#"cpuid.{:0x}f.ecx = "{:0b}""#,
-                brand_part.eax_in, brand_part.ecx
-            );
-            println!(
-                r#"cpuid.{:0x}f.edx = "{:0b}""#,
-                brand_part.eax_in, brand_part.edx
-            );
+            let left = format!(r#"cpuid.{}"#, brand_part.eax_in);
+            println!(r#"{}.eax = "{:0b}""#, left, brand_part.eax);
+            println!(r#"{}.ebx = "{:0b}""#, left, brand_part.ebx);
+            println!(r#"{}.ecx = "{:0b}""#, left, brand_part.ecx);
+            println!(r#"{}.edx = "{:0b}""#, left, brand_part.edx);
         }
     }
 }
